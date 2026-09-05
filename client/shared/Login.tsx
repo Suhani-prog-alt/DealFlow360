@@ -28,6 +28,24 @@ export default function Login({ onLogin }: LoginProps) {
 
       if (response.ok && data.token) {
         localStorage.setItem('jwt_token', data.token);
+        
+        // Port mapping for our different frontends
+        const portMap: Record<string, string> = {
+          'sales_rep': '5173',
+          'admin': '5174',
+          'finance': '5175',
+          'sales_manager': '5176'
+        };
+        
+        const currentPort = window.location.port;
+        const targetPort = portMap[role];
+        
+        if (targetPort && currentPort !== targetPort) {
+          // Redirect them to the correct frontend app!
+          window.location.href = `http://localhost:${targetPort}`;
+          return;
+        }
+
         onLogin(role);
       } else {
         setError(data.message || 'Invalid credentials');

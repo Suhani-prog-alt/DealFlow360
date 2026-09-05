@@ -4,5 +4,6 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: { fs: { allow: ['..'] } }
+  server: {
+    port: 5176, fs: { allow: ['..'] } }
 })
