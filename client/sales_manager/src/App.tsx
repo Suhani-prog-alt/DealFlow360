@@ -82,8 +82,6 @@ function Sidebar() {
   );
 }
 
-import Login from '../../shared/Login';
-
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
