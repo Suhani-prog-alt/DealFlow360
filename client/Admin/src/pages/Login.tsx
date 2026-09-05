@@ -9,6 +9,7 @@ export default function Login({ onLogin }: LoginProps) {
   const [email, setEmail] = useState('john.sales@dealflow360.com');
   const [password, setPassword] = useState('demo123');
   const [role, setRole] = useState('sales_rep');
+  const [loginType, setLoginType] = useState('head');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -91,6 +92,23 @@ export default function Login({ onLogin }: LoginProps) {
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6 relative z-10">
+                    <div className="flex bg-[#111412] p-1 rounded-xl mb-6 border border-zinc-800/80">
+            <button
+              type="button"
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${loginType === 'head' ? 'bg-[#1a1f1b] text-[#81c784] shadow-md border border-zinc-700/80' : 'text-zinc-500 hover:text-zinc-300'}`}
+              onClick={() => { setLoginType('head'); setRole('sales_rep'); }}
+            >
+              Staff Member
+            </button>
+            <button
+              type="button"
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${loginType === 'customer' ? 'bg-[#1a1f1b] text-[#81c784] shadow-md border border-zinc-700/80' : 'text-zinc-500 hover:text-zinc-300'}`}
+              onClick={() => { setLoginType('customer'); setRole('customer'); }}
+            >
+              Customer Portal
+            </button>
+          </div>
+
           <div className="space-y-1.5">
             <label className="block text-sm font-semibold text-zinc-300">Email Address</label>
             <div className="relative">
@@ -115,29 +133,31 @@ export default function Login({ onLogin }: LoginProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-[#111412] border border-zinc-700/80 rounded-xl pl-11 pr-4 py-3 text-white outline-none focus:border-[#81c784] focus:ring-1 focus:ring-[#81c784] transition-all"
+
                 placeholder="••••••••"
                 required
               />
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-zinc-300">Select Role</label>
-            <div className="relative">
-              <select 
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full bg-[#111412] border border-zinc-700/80 rounded-xl px-4 py-3 text-white outline-none focus:border-[#81c784] focus:ring-1 focus:ring-[#81c784] transition-all appearance-none cursor-pointer"
-              >
-                <option value="sales_rep">Sales Representative</option>
-                <option value="sales_manager">Sales Manager</option>
-                <option value="finance">Finance Team</option>
-                <option value="admin">System Admin</option>
-                <option value="customer">Customer Portal</option>
-              </select>
-              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" size={18} />
+          {loginType === 'head' && (
+            <div className="space-y-1.5">
+              <label className="block text-sm font-semibold text-zinc-300">Select Role</label>
+              <div className="relative">
+                <select 
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="w-full bg-[#111412] border border-zinc-700/80 rounded-xl px-4 py-3 text-white outline-none focus:border-[#81c784] focus:ring-1 focus:ring-[#81c784] transition-all appearance-none cursor-pointer"
+                >
+                  <option value="sales_rep">Sales Representative</option>
+                  <option value="sales_manager">Sales Manager</option>
+                  <option value="finance">Finance Team</option>
+                  <option value="admin">System Admin</option>
+                </select>
+                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" size={18} />
+              </div>
             </div>
-          </div>
+          )}
 
           <button 
             type="submit" 
