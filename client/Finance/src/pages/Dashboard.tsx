@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 w-full">
       <div>
@@ -10,25 +13,25 @@ const Dashboard = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-[#141414] p-6 rounded-lg border border-red-900/30">
+        <div className="bg-[#141414] p-6 rounded-lg border border-red-900/30 transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-[0_20px_40px_rgba(255,0,0,0.15)] cursor-pointer relative hover:z-10">
           <p className="text-xs font-medium text-red-400 mb-2">High-Risk Discounts</p>
           <h3 className="text-3xl font-light text-red-500">04</h3>
           <p className="text-xs text-gray-500 mt-2">awaiting 2nd level approval</p>
         </div>
         
-        <div className="bg-[#141414] p-6 rounded-lg border border-[#222]">
+        <div className="bg-[#141414] p-6 rounded-lg border border-[#222] transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-[0_20px_40px_rgba(232,112,64,0.15)] cursor-pointer hover:border-[#e87040]/50 relative hover:z-10">
           <p className="text-xs font-medium text-gray-400 mb-2">Pending Fulfillment Splits</p>
           <h3 className="text-3xl font-light text-[#e87040]">12</h3>
           <p className="text-xs text-gray-500 mt-2">backorders requiring action</p>
         </div>
         
-        <div className="bg-[#141414] p-6 rounded-lg border border-[#222]">
+        <div className="bg-[#141414] p-6 rounded-lg border border-[#222] transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-[0_20px_40px_rgba(232,112,64,0.15)] cursor-pointer hover:border-[#e87040]/50 relative hover:z-10">
           <p className="text-xs font-medium text-gray-400 mb-2">Unreconciled Billing</p>
           <h3 className="text-3xl font-light text-[#e87040]">28</h3>
           <p className="text-xs text-gray-500 mt-2">recurring subscriptions</p>
         </div>
 
-        <div className="bg-[#141414] p-6 rounded-lg border border-[#222]">
+        <div className="bg-[#141414] p-6 rounded-lg border border-[#222] transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-[0_20px_40px_rgba(232,112,64,0.15)] cursor-pointer hover:border-[#e87040]/50 relative hover:z-10">
           <p className="text-xs font-medium text-gray-400 mb-2">Active Credit Notes</p>
           <h3 className="text-3xl font-light text-[#e87040]">$14.2k</h3>
           <p className="text-xs text-gray-500 mt-2">needs accounting review</p>
@@ -36,10 +39,16 @@ const Dashboard = () => {
       </div>
 
       <div className="flex space-x-3">
-        <button className="bg-[#4d6a45] hover:bg-[#5b7c52] text-white text-sm font-medium py-2 px-6 rounded transition-colors">
+        <button 
+          onClick={() => navigate('/finance/high-risk-approvals')}
+          className="bg-[#4d6a45] hover:bg-[#5b7c52] text-white text-sm font-medium py-2 px-6 rounded transition-colors"
+        >
           Review High-Risk Approvals
         </button>
-        <button className="bg-transparent border border-[#333] hover:border-[#555] text-gray-300 text-sm font-medium py-2 px-6 rounded transition-colors">
+        <button 
+          onClick={() => navigate('/finance/warehouse-splits')}
+          className="bg-transparent border border-[#333] hover:border-[#555] text-gray-300 text-sm font-medium py-2 px-6 rounded transition-colors"
+        >
           Manage Warehouse Splits
         </button>
       </div>
@@ -47,9 +56,9 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column: Approvals & Fulfillment */}
         <div className="space-y-8">
-          <div className="bg-[#141414] p-6 rounded-lg border border-red-900/20">
+          <div className="bg-[#141414] p-6 rounded-lg border border-red-900/20 transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] hover:border-red-500 hover:shadow-[0_15px_40px_rgba(239,68,68,0.2)] cursor-pointer relative hover:z-10" onClick={() => navigate('/finance/high-risk-approvals')}>
             <h4 className="text-white text-sm font-semibold mb-4 flex items-center">
-               <span className="w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+               <span className="w-2 h-2 rounded-full bg-red-500 mr-2 animate-pulse"></span>
                High Risk Discount Queue
             </h4>
             <div className="space-y-4">
@@ -76,8 +85,11 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="bg-[#141414] p-6 rounded-lg border border-[#222]">
-            <h4 className="text-white text-sm font-semibold mb-4">Fulfillment & Backorder Alerts</h4>
+          <div className="bg-[#141414] p-6 rounded-lg border border-[#222] transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] hover:border-orange-500 hover:shadow-[0_15px_40px_rgba(232,112,64,0.2)] cursor-pointer relative hover:z-10" onClick={() => navigate('/finance/warehouse-splits')}>
+            <h4 className="text-white text-sm font-semibold mb-4 flex items-center">
+               <span className="w-2 h-2 rounded-full bg-[#e87040] mr-2"></span>
+               Fulfillment & Backorder Alerts
+            </h4>
             <div className="space-y-3">
               <div className="flex items-center space-x-3 p-3 bg-[#1a1a1a] rounded border border-[#333]">
                 <div className="text-[#e87040]">
@@ -93,7 +105,7 @@ const Dashboard = () => {
         </div>
 
         {/* Right Column: Billing Reconciliation */}
-        <div className="bg-[#141414] p-6 rounded-lg border border-[#222]">
+        <div className="bg-[#141414] p-6 rounded-lg border border-[#222] transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] hover:border-[#4d6a45] hover:shadow-[0_15px_40px_rgba(77,106,69,0.2)] relative hover:z-10">
           <h4 className="text-white text-sm font-semibold mb-4">Billing Reconciliation</h4>
           <div className="space-y-4">
             <div className="pb-3 border-b border-[#222]">
@@ -110,12 +122,12 @@ const Dashboard = () => {
             <div>
                <h5 className="text-xs font-medium text-gray-400 mb-3">Pending Credit Notes</h5>
                <div className="space-y-2">
-                  <div className="flex justify-between p-2 hover:bg-[#1a1a1a] rounded cursor-pointer transition-colors">
+                  <div onClick={() => alert("Opening CN-2023-011")} className="flex justify-between p-2 hover:bg-[#1a1a1a] rounded cursor-pointer transition-colors">
                      <span className="text-sm text-gray-300">CN-2023-011</span>
                      <span className="text-sm text-gray-400">SLA Breach Refund</span>
                      <span className="text-sm font-bold text-white">$2,450</span>
                   </div>
-                  <div className="flex justify-between p-2 hover:bg-[#1a1a1a] rounded cursor-pointer transition-colors">
+                  <div onClick={() => alert("Opening CN-2023-012")} className="flex justify-between p-2 hover:bg-[#1a1a1a] rounded cursor-pointer transition-colors">
                      <span className="text-sm text-gray-300">CN-2023-012</span>
                      <span className="text-sm text-gray-400">Prorated Downgrade</span>
                      <span className="text-sm font-bold text-white">$890</span>

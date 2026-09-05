@@ -25,7 +25,10 @@ const InvoicesList = () => {
           <h1 className="text-2xl font-bold text-white tracking-tight">Invoices</h1>
           <p className="text-gray-500 text-sm mt-1">Manage and track customer invoices</p>
         </div>
-        <button className="bg-[#4d6a45] hover:bg-[#5b7c52] text-white text-sm font-medium py-2 px-6 rounded transition-colors">
+        <button 
+          onClick={() => alert("Opening Create Invoice form...")}
+          className="bg-[#4d6a45] hover:bg-[#5b7c52] text-white text-sm font-medium py-2 px-6 rounded transition-colors"
+        >
           Create Invoice
         </button>
       </div>
@@ -55,7 +58,7 @@ const InvoicesList = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                  <button className="text-gray-400 hover:text-white transition-colors">View</button>
+                  <button onClick={() => alert(`Viewing details for ${inv.id}`)} className="text-gray-400 hover:text-white transition-colors">View</button>
                 </td>
               </tr>
             ))}

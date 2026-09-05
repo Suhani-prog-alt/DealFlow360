@@ -100,14 +100,28 @@ CREATE TABLE "BillingSchedule" (
 
 -- AlterEnum
 BEGIN;
+
 CREATE TYPE "InvoiceStatus_new" AS ENUM ('DRAFT', 'ISSUED', 'PAID', 'PARTIALLY_PAID', 'OVERDUE', 'CANCELLED');
+
 ALTER TABLE "public"."Invoice" ALTER COLUMN "status" DROP DEFAULT;
-ALTER TABLE "Invoice" ALTER COLUMN "status" TYPE "InvoiceStatus_new" USING ("status"::text::"InvoiceStatus_new");
-ALTER TABLE "BillingSchedule" ALTER COLUMN "status" TYPE "InvoiceStatus_new" USING ("status"::text::"InvoiceStatus_new");
+ALTER TABLE "BillingSchedule" ALTER COLUMN "status" DROP DEFAULT;
+
+ALTER TABLE "Invoice"
+ALTER COLUMN "status" TYPE "InvoiceStatus_new"
+USING ("status"::text::"InvoiceStatus_new");
+
+ALTER TABLE "BillingSchedule"
+ALTER COLUMN "status" TYPE "InvoiceStatus_new"
+USING ("status"::text::"InvoiceStatus_new");
+
 ALTER TYPE "InvoiceStatus" RENAME TO "InvoiceStatus_old";
 ALTER TYPE "InvoiceStatus_new" RENAME TO "InvoiceStatus";
+
 DROP TYPE "public"."InvoiceStatus_old";
+
 ALTER TABLE "Invoice" ALTER COLUMN "status" SET DEFAULT 'DRAFT';
+ALTER TABLE "BillingSchedule" ALTER COLUMN "status" SET DEFAULT 'DRAFT';
+
 COMMIT;
 
 
