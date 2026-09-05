@@ -1,7 +1,10 @@
 import React from 'react';
 import { ArrowDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -30,10 +33,16 @@ const Dashboard = () => {
       </div>
 
       <div className="flex gap-4 mt-2">
-        <button className="bg-[#81c784] text-black font-semibold px-6 py-2.5 rounded-md hover:bg-[#6fbf73] transition-colors">
+        <button 
+          onClick={() => navigate('/quotations')}
+          className="bg-[#81c784] text-black font-semibold px-6 py-2.5 rounded-md hover:bg-[#6fbf73] transition-colors"
+        >
           New quotation
         </button>
-        <button className="bg-transparent border border-zinc-700 text-white font-semibold px-6 py-2.5 rounded-md hover:bg-zinc-800 transition-colors">
+        <button 
+          onClick={() => navigate('/approvals')}
+          className="bg-transparent border border-zinc-700 text-white font-semibold px-6 py-2.5 rounded-md hover:bg-zinc-800 transition-colors"
+        >
           View approvals
         </button>
       </div>
