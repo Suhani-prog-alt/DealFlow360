@@ -9,6 +9,7 @@ const MOCK_PRODUCTS = [
 
 const QuotationBuilder = () => {
   const [cart, setCart] = useState<{product: any, qty: number, discount: number}[]>([]);
+  const [customer, setCustomer] = useState('Acme Corp');
   
   const addToCart = (product: any) => {
     if (!cart.find(item => item.product.id === product.id)) {
@@ -38,9 +39,23 @@ const QuotationBuilder = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-3xl font-bold text-white mb-2">New Quotation</h1>
-        <p className="text-zinc-400">Build a quote for Acme Corp (Tier: Gold)</p>
+      <div className="flex justify-between items-end">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">New Quotation</h1>
+          <p className="text-zinc-400">Build a quote for your client</p>
+        </div>
+        <div className="bg-[#1f2921] border border-zinc-700/80 rounded-xl p-3 shadow-lg min-w-[250px]">
+          <label className="block text-xs font-semibold text-zinc-400 mb-1">Select Customer</label>
+          <select 
+            value={customer}
+            onChange={(e) => setCustomer(e.target.value)}
+            className="w-full bg-[#111412] text-white border border-zinc-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#81c784]"
+          >
+            <option value="Acme Corp">Acme Corp (Tier: Gold)</option>
+            <option value="Globex Inc">Globex Inc (Tier: Silver)</option>
+            <option value="Stark Ind">Stark Industries (Tier: Platinum)</option>
+          </select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -137,6 +152,27 @@ const QuotationBuilder = () => {
             >
               {needsApproval ? 'Submit for Approval' : 'Confirm Order'}
             </button>
+          </div>
+
+          <div className="bg-[#1f2921] border border-[#ffb74d]/50 rounded-xl p-6 mt-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-[#ffb74d] text-black text-xs font-bold px-3 py-1 rounded-bl-lg">
+              AI Suggestion
+            </div>
+            <h2 className="text-xl font-bold text-white mb-4">Upsell Opportunities</h2>
+            <div className="flex flex-col gap-3">
+              <div className="bg-[#111412] p-4 rounded-lg border border-zinc-700 flex justify-between items-center">
+                <div>
+                  <p className="text-white font-medium">Premium Support SLA</p>
+                  <p className="text-xs text-zinc-400">Frequently bought with Enterprise Server X1</p>
+                </div>
+                <button 
+                  onClick={() => alert('Added Premium Support SLA to quote!')}
+                  className="text-sm text-[#ffb74d] hover:text-white border border-[#ffb74d] hover:bg-[#ffb74d] hover:border-transparent px-3 py-1 rounded transition-colors"
+                >
+                  + Add ($500/mo)
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
