@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Root package strictly for hosting the backend on Render",
   "scripts": {
-    "start": "node backend.js"
+    "start": "node backend.js",
+    "postinstall": "npx prisma generate --schema=server/sales_rep/prisma/schema.prisma"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
