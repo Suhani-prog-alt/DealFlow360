@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  role      String   // "Sales Rep", "Sales Manager", "Finance", "Admin"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  quotations       Quotation[]
+  approvalRequests ApprovalRequest[] @relation("RequestedBy")
+  assignedApprovals ApprovalRequest[] @relation("AssignedTo")
+  approvalLogs     ApprovalLog[]
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String
+  tier      String   // "Bronze", "Silver", "Gold"
+  industry  String?
+  createdAt DateTime @default(now())
+  
+  quotations Quotation[]
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  category    String   // "Hardware", "Software", "Services"
+  price       Float
+  description String?
+  
+  quotationItems QuotationItem[]
+  inventories    Inventory[]
+  primaryUpsells UpsellRule[] @relation("PrimaryProduct")
+  suggestedUpsells UpsellRule[] @relation("SuggestedProduct")
+}
+
+model DiscountRule {
+  id              String   @id @default(uuid())
+  customerTier    String   // e.g. "Gold"
+  productCategory String   // e.g. "Hardware"
+  maxDiscount     Float    // Allowed discount percentage without manager approval
+  createdAt       DateTime @default(now())
+}
+
+model Quotation {
+  id            String   @id @default(uuid())
+  quotationId   String   @unique // e.g., QT-1024
+  status        String   // "Draft", "Pending Approval", "Approved", "Revision Required", "Rejected"
+  subtotal      Float
+  discountAmt   Float
+  finalAmount   Float
+  blendedRisk   Float?   // 0-100 score
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id])
+  
+  salesRepId    String
+  salesRep      User     @relation(fields: [salesRepId], references: [id])
+  
+  items            QuotationItem[]
+  approvalRequests ApprovalRequest[]
+  approvalLogs     ApprovalLog[]
+}
+
+model QuotationItem {
+  id               String   @id @default(uuid())
+  quantity         Int
+  unitPrice        Float
+  requestedDiscount Float   // Percentage
+  subtotal         Float
+  
+  quotationId      String
+  quotation        Quotation @relation(fields: [quotationId], references: [id])
+  
+  productId        String
+  product          Product   @relation(fields: [productId], references: [id])
+}
+
+model ApprovalRequest {
+  id              String   @id @default(uuid())
+  approvalLevel   String   // "Manager", "Finance"
+  status          String   // "Pending", "Approved", "Rejected", "Returned"
+  riskScore       Float
+  reason          String?
+  createdAt       DateTime @default(now())
+  reviewedAt      DateTime?
+  
+  quotationId     String
+  quotation       Quotation @relation(fields: [quotationId], references: [id])
+  
+  requestedById   String
+  requestedBy     User      @relation("RequestedBy", fields: [requestedById], references: [id])
+  
+  assignedToId    String?
+  assignedTo      User?     @relation("AssignedTo", fields: [assignedToId], references: [id])
+}
+
+model ApprovalLog {
+  id             String   @id @default(uuid())
+  action         String   // "Approved", "Rejected", "Returned for Revision"
+  reason         String?
+  previousStatus String
+  newStatus      String
+  timestamp      DateTime @default(now())
+  
+  quotationId    String
+  quotation      Quotation @relation(fields: [quotationId], references: [id])
+  
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+}
+
+model PriceList {
+  id           String   @id @default(uuid())
+  name         String
+  customerTier String
+  currency     String   @default("USD")
+  rules        Json?    // Stores specific category rules or overrides
+  createdAt    DateTime @default(now())
+}
+
+model ApprovalChain {
+  id                String   @id @default(uuid())
+  name              String
+  discountThreshold Float    // e.g., anything above 15% needs approval
+  roleRequired      String   // e.g., "Sales Manager" or "Finance"
+  createdAt         DateTime @default(now())
+}
+
+model Warehouse {
+  id             String   @id @default(uuid())
+  name           String
+  location       String
+  shippingWeight Float    // Used for auto-split cost weighting
+  createdAt      DateTime @default(now())
+  inventories    Inventory[]
+}
+
+model Inventory {
+  id          String    @id @default(uuid())
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  quantity    Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model SubscriptionPlan {
+  id           String   @id @default(uuid())
+  name         String
+  billingCycle String   // "Monthly", "Quarterly", "Yearly"
+  price        Float
+  createdAt    DateTime @default(now())
+}
+
+model UpsellRule {
+  id                 String   @id @default(uuid())
+  primaryProductId   String
+  primaryProduct     Product  @relation("PrimaryProduct", fields: [primaryProductId], references: [id])
+  suggestedProductId String
+  suggestedProduct   Product  @relation("SuggestedProduct", fields: [suggestedProductId], references: [id])
+  marginThreshold    Float    // Only suggest if margin > this
+  createdAt          DateTime @default(now())
+}
