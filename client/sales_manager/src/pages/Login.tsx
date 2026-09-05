@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, Lock, Mail, ShieldAlert } from 'lucide-react';
 
 interface LoginProps {
@@ -11,6 +11,18 @@ export default function Login({ onLogin }: LoginProps) {
   const [role, setRole] = useState('sales_rep');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const roleParam = urlParams.get('role');
+    if (token) {
+      localStorage.setItem('jwt_token', token);
+      window.history.replaceState({}, document.title, window.location.pathname);
+      onLogin(roleParam || 'user');
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +54,7 @@ export default function Login({ onLogin }: LoginProps) {
         
         if (targetPort && currentPort !== targetPort) {
           // Redirect them to the correct frontend app!
-          window.location.href = `http://localhost:${targetPort}`;
+          window.location.href = `http://localhost:${targetPort}/?token=${data.token}&role=${role}`;
           return;
         }
 
