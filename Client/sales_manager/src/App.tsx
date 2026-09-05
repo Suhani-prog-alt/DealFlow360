@@ -81,7 +81,15 @@ function Sidebar() {
   );
 }
 
+import Login from '../../shared/Login';
+
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  if (!isAuthenticated) {
+    return <Login onLogin={() => setIsAuthenticated(true)} />;
+  }
+
   return (
     <Router>
       <div className="min-h-screen bg-background text-text flex">

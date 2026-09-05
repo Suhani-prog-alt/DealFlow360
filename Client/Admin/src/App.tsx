@@ -68,8 +68,16 @@ import SubscriptionPlans from './pages/SubscriptionPlans';
 import Upsells from './pages/Upsells';
 import Reports from './pages/Reports';
 import AuditLogs from './pages/AuditLogs';
+import Login from '../../shared/Login';
+import { useState } from 'react';
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  if (!isAuthenticated) {
+    return <Login onLogin={() => setIsAuthenticated(true)} />;
+  }
+
   return (
     <Layout>
       <Routes>
