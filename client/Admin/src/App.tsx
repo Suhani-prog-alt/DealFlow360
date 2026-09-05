@@ -68,7 +68,7 @@ import SubscriptionPlans from './pages/SubscriptionPlans';
 import Upsells from './pages/Upsells';
 import Reports from './pages/Reports';
 import AuditLogs from './pages/AuditLogs';
-import Login from '../../shared/Login';
+import Login from './pages/Login';
 import { useState } from 'react';
 
 export default function App() {

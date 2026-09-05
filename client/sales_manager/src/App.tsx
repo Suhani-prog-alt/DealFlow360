@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, FileText, CheckCircle, Activity, Scale, GitBranch, BarChart3, FileClock, ChevronDown, ChevronRight } from 'lucide-react';
+import Login from './pages/Login';
 import clsx from 'clsx';
 import { useState } from 'react';
 

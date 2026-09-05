@@ -66,7 +66,7 @@ const AdminReporting = () => {
 };
 
 
-import Login from '../../shared/Login';
+import Login from './pages/Login';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

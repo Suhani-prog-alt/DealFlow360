@@ -7,7 +7,7 @@ import Approvals from './pages/Approvals';
 import Fulfillment from './pages/Fulfillment';
 import Subscriptions from './pages/Subscriptions';
 import Negotiations from './pages/Negotiations';
-import Login from '../../shared/Login';
+import Login from './pages/Login';
 
 function Sidebar({ onLogout }: { onLogout: () => void }) {
   const location = useLocation();
