@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Root package to run all DealFlow360 services",
   "scripts": {
-    "start": "node index.js",
+    "start": "npm run dev:backend",
+    "postinstall": "npm install --prefix server/sales_rep",
     "dev": "concurrently -c \"blue,green,magenta,yellow,cyan,blue\" -n \"BACKEND,REP,MANAGER,FINANCE,ADMIN,CUSTOMER\" \"npm run dev:backend\" \"npm run dev:rep\" \"npm run dev:manager\" \"npm run dev:finance\" \"npm run dev:admin\" \"npm run dev:customer\"",
     "dev:backend": "cd server/sales_rep && npx tsx src/index.ts",
     "dev:rep": "cd client/sales_rep && npm run dev",
