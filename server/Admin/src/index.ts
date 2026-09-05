@@ -144,35 +144,32 @@ const modelMap: Record<string, any> = {
   'upsells': prisma.upsellRule
 };
 
-app.post('/api/v1/:model(*)', async (req: any, res, next) => {
-  const modelStr = req.params.model;
-  if (!modelMap[modelStr]) return next();
-  try {
-    // Basic type coercion for numbers so Prisma doesn't fail on String->Float
-    const data = { ...req.body };
-    for (const key in data) {
-      if (!isNaN(data[key]) && data[key] !== '') {
-        data[key] = Number(data[key]);
+Object.keys(modelMap).forEach(modelStr => {
+  app.post(`/api/v1/${modelStr}`, async (req: any, res) => {
+    try {
+      const data = { ...req.body };
+      for (const key in data) {
+        if (typeof data[key] === 'string' && !isNaN(Number(data[key])) && data[key] !== '') {
+          data[key] = Number(data[key]);
+        }
       }
-    }
-    const created = await modelMap[modelStr].create({ data });
-    await prisma.auditLog.create({
-      data: { user: 'Admin', action: 'CREATE', entity: modelStr, entityId: created.id, details: JSON.stringify(data) }
-    });
-    res.json(created);
-  } catch (e) { res.status(400).json({ error: 'Bad Request' }); }
-});
+      const created = await modelMap[modelStr].create({ data });
+      await prisma.auditLog.create({
+        data: { user: 'Admin', action: 'CREATE', entity: modelStr, entityId: created.id, details: JSON.stringify(data) }
+      });
+      res.json(created);
+    } catch (e) { res.status(400).json({ error: 'Bad Request' }); }
+  });
 
-app.delete('/api/v1/:model(*)/:id', async (req: any, res, next) => {
-  const { model, id } = req.params;
-  if (!modelMap[model]) return next();
-  try {
-    await modelMap[model].delete({ where: { id } });
-    await prisma.auditLog.create({
-      data: { user: 'Admin', action: 'DELETE', entity: model, entityId: id, details: 'Deleted record' }
-    });
-    res.json({ success: true });
-  } catch (e) { res.status(400).json({ error: 'Bad Request' }); }
+  app.delete(`/api/v1/${modelStr}/:id`, async (req: any, res) => {
+    try {
+      await modelMap[modelStr].delete({ where: { id: req.params.id } });
+      await prisma.auditLog.create({
+        data: { user: 'Admin', action: 'DELETE', entity: modelStr, entityId: req.params.id, details: 'Deleted record' }
+      });
+      res.json({ success: true });
+    } catch (e) { res.status(400).json({ error: 'Bad Request' }); }
+  });
 });
 
 app.listen(PORT, () => {
