@@ -14,7 +14,7 @@ app.use(express.json());
 import configRoutes from './routes/config';
 import reportsRoutes from './routes/reports';
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5003;
 
 app.use('/api/config', configRoutes);
 app.use('/api/reports', reportsRoutes);

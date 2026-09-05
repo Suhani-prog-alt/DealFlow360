@@ -1,0 +1,11 @@
+{
+  "name": "dealflow360-server",
+  "version": "1.0.0",
+  "scripts": {
+    "install:all": "npm install --prefix Admin && npm install --prefix Customer && npm install --prefix finance && npm install --prefix sales_manager && npm install --prefix sales_rep",
+    "dev": "concurrently \"npm run dev --prefix Admin\" \"npm run dev --prefix Customer\" \"npm run dev --prefix finance\" \"npm run dev --prefix sales_manager\" \"npm run dev --prefix sales_rep\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
