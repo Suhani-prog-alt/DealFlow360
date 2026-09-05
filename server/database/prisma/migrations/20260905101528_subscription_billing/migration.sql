@@ -18,16 +18,18 @@ CREATE TYPE "SubscriptionStatus" AS ENUM ('ACTIVE', 'PAUSED', 'CANCELLED', 'EXPI
 CREATE TYPE "BillingInterval" AS ENUM ('MONTHLY', 'QUARTERLY', 'YEARLY');
 
 -- AlterEnum
-BEGIN;
-CREATE TYPE "InvoiceStatus_new" AS ENUM ('DRAFT', 'ISSUED', 'PAID', 'PARTIALLY_PAID', 'OVERDUE', 'CANCELLED');
-ALTER TABLE "public"."Invoice" ALTER COLUMN "status" DROP DEFAULT;
-ALTER TABLE "Invoice" ALTER COLUMN "status" TYPE "InvoiceStatus_new" USING ("status"::text::"InvoiceStatus_new");
-ALTER TABLE "BillingSchedule" ALTER COLUMN "status" TYPE "InvoiceStatus_new" USING ("status"::text::"InvoiceStatus_new");
-ALTER TYPE "InvoiceStatus" RENAME TO "InvoiceStatus_old";
-ALTER TYPE "InvoiceStatus_new" RENAME TO "InvoiceStatus";
-DROP TYPE "public"."InvoiceStatus_old";
-ALTER TABLE "Invoice" ALTER COLUMN "status" SET DEFAULT 'DRAFT';
-COMMIT;
+-- BEGIN;
+-- CREATE TYPE "InvoiceStatus_new" AS ENUM ('DRAFT', 'ISSUED', 'PAID', 'PARTIALLY_PAID', 'OVERDUE', 'CANCELLED');
+-- ALTER TABLE "public"."Invoice" ALTER COLUMN "status" DROP DEFAULT;
+-- ALTER TABLE "Invoice" ALTER COLUMN "status" TYPE "InvoiceStatus_new" USING ("status"::text::"InvoiceStatus_new");
+-- ALTER TABLE "BillingSchedule" ALTER COLUMN "status" TYPE "InvoiceStatus_new" USING ("status"::text::"InvoiceStatus_new");
+-- ALTER TYPE "InvoiceStatus" RENAME TO "InvoiceStatus_old";
+-- ALTER TYPE "InvoiceStatus_new" RENAME TO "InvoiceStatus";
+-- DROP TYPE "public"."InvoiceStatus_old";
+-- ALTER TABLE "Invoice" ALTER COLUMN "status" SET DEFAULT 'DRAFT';
+-- COMMIT;
+
+
 
 -- AlterEnum
 ALTER TYPE "PaymentStatus" ADD VALUE 'REFUNDED';
@@ -95,6 +97,19 @@ CREATE TABLE "BillingSchedule" (
 
     CONSTRAINT "BillingSchedule_pkey" PRIMARY KEY ("id")
 );
+
+-- AlterEnum
+BEGIN;
+CREATE TYPE "InvoiceStatus_new" AS ENUM ('DRAFT', 'ISSUED', 'PAID', 'PARTIALLY_PAID', 'OVERDUE', 'CANCELLED');
+ALTER TABLE "public"."Invoice" ALTER COLUMN "status" DROP DEFAULT;
+ALTER TABLE "Invoice" ALTER COLUMN "status" TYPE "InvoiceStatus_new" USING ("status"::text::"InvoiceStatus_new");
+ALTER TABLE "BillingSchedule" ALTER COLUMN "status" TYPE "InvoiceStatus_new" USING ("status"::text::"InvoiceStatus_new");
+ALTER TYPE "InvoiceStatus" RENAME TO "InvoiceStatus_old";
+ALTER TYPE "InvoiceStatus_new" RENAME TO "InvoiceStatus";
+DROP TYPE "public"."InvoiceStatus_old";
+ALTER TABLE "Invoice" ALTER COLUMN "status" SET DEFAULT 'DRAFT';
+COMMIT;
+
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Subscription_subscriptionNumber_key" ON "Subscription"("subscriptionNumber");
