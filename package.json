@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "description": "Root package to run all DealFlow360 services",
   "scripts": {
-    "dev": "concurrently -c \"blue,green,magenta,yellow,cyan\" -n \"BACKEND,REP,MANAGER,FINANCE,ADMIN\" \"npm run dev:backend\" \"npm run dev:rep\" \"npm run dev:manager\" \"npm run dev:finance\" \"npm run dev:admin\"",
+    "dev": "concurrently -c \"blue,green,magenta,yellow,cyan,blue\" -n \"BACKEND,REP,MANAGER,FINANCE,ADMIN,CUSTOMER\" \"npm run dev:backend\" \"npm run dev:rep\" \"npm run dev:manager\" \"npm run dev:finance\" \"npm run dev:admin\" \"npm run dev:customer\"",
     "dev:backend": "cd server/sales_rep && npx tsx src/index.ts",
     "dev:rep": "cd client/sales_rep && npm run dev",
     "dev:manager": "cd client/sales_manager && npm run dev",
     "dev:finance": "cd client/Finance && npm run dev",
-    "dev:admin": "cd client/Admin && npm run dev"
+    "dev:admin": "cd client/Admin && npm run dev",
+    "dev:customer": "cd client/Customer && npm run dev"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

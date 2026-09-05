@@ -46,7 +46,8 @@ export default function Login({ onLogin }: LoginProps) {
           'sales_rep': '5173',
           'admin': '5174',
           'finance': '5175',
-          'sales_manager': '5176'
+          'sales_manager': '5176',
+          'customer': '5177'
         };
         
         const currentPort = window.location.port;
@@ -132,6 +133,7 @@ export default function Login({ onLogin }: LoginProps) {
                 <option value="sales_manager">Sales Manager</option>
                 <option value="finance">Finance Team</option>
                 <option value="admin">System Admin</option>
+                <option value="customer">Customer Portal</option>
               </select>
               <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" size={18} />
             </div>

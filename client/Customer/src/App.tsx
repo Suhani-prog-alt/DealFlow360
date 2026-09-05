@@ -1,5 +1,7 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useState } from 'react';
+import Login from './pages/Login';
 import CustomerLayout from './components/CustomerLayout';
 import Dashboard from './pages/Dashboard';
 import MyQuotations from './pages/MyQuotations';
@@ -8,6 +10,12 @@ import Notifications from './pages/Notifications';
 import Account from './pages/Account';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  if (!isAuthenticated) {
+    return <Login onLogin={() => setIsAuthenticated(true)} />;
+  }
+
   return (
     <BrowserRouter>
       <Routes>
