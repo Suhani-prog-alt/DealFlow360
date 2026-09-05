@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Check, AlertTriangle } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 
 const MOCK_PRODUCTS = [
   { id: '1', name: 'Enterprise Server X1', category: 'Hardware', price: 5000, margin: 40, maxDiscount: 15 },
@@ -7,10 +8,42 @@ const MOCK_PRODUCTS = [
   { id: '3', name: 'DealFlow Pro License (Yearly)', category: 'Subscription', price: 1200, margin: 80, maxDiscount: 20 }
 ];
 
+// Using the keys you provided
+const supabase = createClient(
+  'https://pqqqpnfbanjrhvgasjuq.supabase.co', 
+  'sb_publishable_Pslou1XLe6oqkKmAoU2OHw_bwIM9-qq'
+);
+
 const QuotationBuilder = () => {
   const [cart, setCart] = useState<{product: any, qty: number, discount: number}[]>([]);
   const [customer, setCustomer] = useState('Acme Corp');
-  
+  const [availableProducts, setAvailableProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Attempt to fetch from your partner's live Supabase database
+    const fetchProducts = async () => {
+      const { data, error } = await supabase.from('Product').select('*');
+      
+      if (error || !data || data.length === 0) {
+        console.error("Supabase RLS blocked the request. Falling back to mock data.", error);
+        setAvailableProducts(MOCK_PRODUCTS);
+      } else {
+        // Map Prisma DB schema to our frontend schema
+        const mappedData = data.map(p => ({
+          id: p.id,
+          name: p.name,
+          category: p.category,
+          price: p.unitPrice,
+          margin: 30, // Mock margin as it's not in DB schema
+          maxDiscount: 15 // Mock maxDiscount as it's handled by rules in DB
+        }));
+        setAvailableProducts(mappedData);
+      }
+    };
+    
+    fetchProducts();
+  }, []);
+
   const addToCart = (product: any) => {
     if (!cart.find(item => item.product.id === product.id)) {
       setCart([...cart, { product, qty: 1, discount: 0 }]);
@@ -98,7 +131,7 @@ const QuotationBuilder = () => {
           <div className="bg-[#1f2921] border border-zinc-800 rounded-xl p-6">
             <h2 className="text-xl font-bold text-white mb-4">Product Catalog</h2>
             <div className="flex flex-col gap-3">
-              {MOCK_PRODUCTS.map(product => (
+              {availableProducts.map(product => (
                 <div key={product.id} className="flex justify-between items-center bg-[#111412] p-4 rounded border border-zinc-800">
                   <div>
                     <p className="text-white">{product.name}</p>

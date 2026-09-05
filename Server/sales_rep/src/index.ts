@@ -2,12 +2,16 @@ import express from 'express';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import smartLogicRouter from './ai/smart_logic';
 
 const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+
+// AI / Smart Logic features
+app.use('/api/smart-logic', smartLogicRouter);
 
 const JWT_SECRET = 'hackathon_secret_key_dealflow360';
 
