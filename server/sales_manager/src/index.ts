@@ -19,6 +19,18 @@ const PORT = process.env.PORT || 5003;
 app.use('/api/config', configRoutes);
 app.use('/api/reports', reportsRoutes);
 
+// Mock login endpoint for frontend
+app.post('/api/login', (req: Request, res: Response) => {
+  res.json({
+    token: 'mock-jwt-token',
+    user: {
+      id: 'manager-123',
+      name: 'Sales Manager',
+      role: 'Sales Manager'
+    }
+  });
+});
+
 // Get pending approvals
 app.get('/api/approvals', async (req: Request, res: Response) => {
   try {
