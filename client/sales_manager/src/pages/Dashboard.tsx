@@ -1,6 +1,27 @@
 import { FileText, AlertTriangle, CheckCircle, Clock, Scale } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
+  const [stats, setStats] = useState<any>({
+    pendingApprovals: 0,
+    openQuotations: 0,
+    atRiskDeals: 0,
+    recentActivity: []
+  });
+  
+  const [approvals, setApprovals] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/dashboard/stats')
+      .then(r => r.json())
+      .then(d => setStats(d));
+      
+    fetch('http://localhost:3001/api/approvals')
+      .then(r => r.json())
+      .then(d => setApprovals(d.approvals || []));
+  }, []);
+
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8">
       <div className="flex justify-between items-center">
@@ -17,17 +38,17 @@ export default function Dashboard() {
             <div className="text-sm font-medium text-textMuted">Pending Approvals</div>
             <Clock size={20} className="text-yellow-500" />
           </div>
-          <div className="text-4xl font-light text-white mb-1">08</div>
+          <div className="text-4xl font-light text-white mb-1">{stats.pendingApprovals.toString().padStart(2, '0')}</div>
           <div className="text-xs text-yellow-500">Action required</div>
         </div>
         
         <div className="card p-5 bg-[#1a1a1a] border border-[#333] rounded-lg">
           <div className="flex justify-between items-start mb-4">
-            <div className="text-sm font-medium text-textMuted">High Risk Deals</div>
+            <div className="text-sm font-medium text-textMuted">Open Deals</div>
             <AlertTriangle size={20} className="text-red-500" />
           </div>
-          <div className="text-4xl font-light text-white mb-1">03</div>
-          <div className="text-xs text-red-500">Score &gt; 75</div>
+          <div className="text-4xl font-light text-white mb-1">{stats.openQuotations.toString().padStart(2, '0')}</div>
+          <div className="text-xs text-red-500">Currently active</div>
         </div>
         
         <div className="card p-5 bg-[#1a1a1a] border border-[#333] rounded-lg">
@@ -35,8 +56,8 @@ export default function Dashboard() {
             <div className="text-sm font-medium text-textMuted">Approved Today</div>
             <CheckCircle size={20} className="text-green-500" />
           </div>
-          <div className="text-4xl font-light text-white mb-1">12</div>
-          <div className="text-xs text-green-500">+3 from yesterday</div>
+          <div className="text-4xl font-light text-white mb-1">00</div>
+          <div className="text-xs text-green-500">Live data coming</div>
         </div>
         
         <div className="card p-5 bg-[#1a1a1a] border border-[#333] rounded-lg">
@@ -44,7 +65,7 @@ export default function Dashboard() {
             <div className="text-sm font-medium text-textMuted">Revision Required</div>
             <FileText size={20} className="text-blue-500" />
           </div>
-          <div className="text-4xl font-light text-white mb-1">04</div>
+          <div className="text-4xl font-light text-white mb-1">00</div>
           <div className="text-xs text-blue-500">Awaiting rep action</div>
         </div>
       </div>
@@ -55,51 +76,39 @@ export default function Dashboard() {
           <div className="card bg-[#1a1a1a] rounded-lg border border-[#333] overflow-hidden">
             <div className="p-4 border-b border-[#333] flex justify-between items-center">
               <h2 className="text-lg font-medium text-white">Approval Overview</h2>
-              <button className="text-sm text-indigo-400 hover:text-indigo-300">View All</button>
+              <Link to="/approvals/pending" className="text-sm text-indigo-400 hover:text-indigo-300">View All</Link>
             </div>
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-[#333] text-sm text-textMuted bg-[#111]">
-                  <th className="px-4 py-3 font-medium">Quote</th>
+                  <th className="px-4 py-3 font-medium">Quote ID</th>
                   <th className="px-4 py-3 font-medium">Customer</th>
-                  <th className="px-4 py-3 font-medium">Rep</th>
-                  <th className="px-4 py-3 font-medium">Discount</th>
-                  <th className="px-4 py-3 font-medium">Risk</th>
+                  <th className="px-4 py-3 font-medium">Risk Score</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Amount</th>
                   <th className="px-4 py-3 font-medium text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
-                <tr className="border-b border-[#222] hover:bg-white/5">
-                  <td className="px-4 py-4 text-white font-medium">QT-1024</td>
-                  <td className="px-4 py-4 text-textMuted">Acme Corp</td>
-                  <td className="px-4 py-4 text-textMuted">Rahul</td>
-                  <td className="px-4 py-4 text-white">18%</td>
-                  <td className="px-4 py-4">
-                    <span className="px-2 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-medium">78</span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs font-medium">Pending</span>
-                  </td>
-                  <td className="px-4 py-4 text-right">
-                    <button className="text-indigo-400 hover:text-indigo-300 font-medium text-sm">Review</button>
-                  </td>
-                </tr>
-                <tr className="border-b border-[#222] hover:bg-white/5">
-                  <td className="px-4 py-4 text-white font-medium">QT-1025</td>
-                  <td className="px-4 py-4 text-textMuted">Beta Ltd</td>
-                  <td className="px-4 py-4 text-textMuted">Priya</td>
-                  <td className="px-4 py-4 text-white">12%</td>
-                  <td className="px-4 py-4">
-                    <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-medium">42</span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs font-medium">Pending</span>
-                  </td>
-                  <td className="px-4 py-4 text-right">
-                    <button className="text-indigo-400 hover:text-indigo-300 font-medium text-sm">Review</button>
-                  </td>
-                </tr>
+                {approvals.map(a => (
+                  <tr key={a.id} className="border-b border-[#222] hover:bg-white/5">
+                    <td className="px-4 py-4 text-white font-medium">{a.id.split('-')[0]}</td>
+                    <td className="px-4 py-4 text-textMuted">{a.customer}</td>
+                    <td className="px-4 py-4">
+                      <span className="px-2 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-medium">{a.riskScore}</span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs font-medium">{a.status}</span>
+                    </td>
+                    <td className="px-4 py-4 text-white">${a.totalAmount.toFixed(2)}</td>
+                    <td className="px-4 py-4 text-right">
+                      <Link to="/approvals/pending" className="text-indigo-400 hover:text-indigo-300 font-medium text-sm">Review</Link>
+                    </td>
+                  </tr>
+                ))}
+                {approvals.length === 0 && (
+                  <tr><td colSpan={6} className="px-4 py-8 text-center text-zinc-500">No pending approvals!</td></tr>
+                )}
               </tbody>
             </table>
           </div>

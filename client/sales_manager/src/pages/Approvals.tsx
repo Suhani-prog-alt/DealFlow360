@@ -1,63 +1,59 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { Check, X, CornerDownLeft } from 'lucide-react';
 
 function PendingApprovals() {
-  const [selectedQuote, setSelectedQuote] = useState<string | null>(null);
+  const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
+  const [approvals, setApprovals] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/approvals')
+      .then(r => r.json())
+      .then(d => setApprovals(d.approvals || []));
+  }, []);
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-medium text-white">Pending Approvals: 8</h2>
+        <h2 className="text-lg font-medium text-white">Pending Approvals: {approvals.length}</h2>
       </div>
 
       <div className="card bg-[#1a1a1a] rounded-lg border border-[#333] overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[#333] text-sm text-textMuted bg-[#111]">
-              <th className="px-4 py-3 font-medium">Quote</th>
+              <th className="px-4 py-3 font-medium">Quote ID</th>
               <th className="px-4 py-3 font-medium">Customer</th>
-              <th className="px-4 py-3 font-medium">Discount</th>
-              <th className="px-4 py-3 font-medium">Allowed</th>
-              <th className="px-4 py-3 font-medium">Risk</th>
-              <th className="px-4 py-3 font-medium">Requested By</th>
+              <th className="px-4 py-3 font-medium">Risk Score</th>
+              <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Total Amount</th>
               <th className="px-4 py-3 font-medium text-right">Action</th>
             </tr>
           </thead>
           <tbody className="text-sm">
-            <tr className="border-b border-[#222] hover:bg-white/5">
-              <td className="px-4 py-4 text-indigo-400 font-medium">QT-1024</td>
-              <td className="px-4 py-4 text-white">Acme</td>
-              <td className="px-4 py-4 text-white">18%</td>
-              <td className="px-4 py-4 text-textMuted">10%</td>
-              <td className="px-4 py-4"><span className="text-red-400 font-medium">78</span></td>
-              <td className="px-4 py-4 text-textMuted">Rahul</td>
-              <td className="px-4 py-4 text-right">
-                <button 
-                  onClick={() => setSelectedQuote('QT-1024')}
-                  className="text-indigo-400 hover:text-indigo-300 font-medium"
-                >
-                  Review
-                </button>
-              </td>
-            </tr>
-            <tr className="border-b border-[#222] hover:bg-white/5">
-              <td className="px-4 py-4 text-indigo-400 font-medium">QT-1029</td>
-              <td className="px-4 py-4 text-white">XYZ</td>
-              <td className="px-4 py-4 text-white">22%</td>
-              <td className="px-4 py-4 text-textMuted">15%</td>
-              <td className="px-4 py-4"><span className="text-red-400 font-medium">85</span></td>
-              <td className="px-4 py-4 text-textMuted">Priya</td>
-              <td className="px-4 py-4 text-right">
-                <button 
-                  onClick={() => setSelectedQuote('QT-1029')}
-                  className="text-indigo-400 hover:text-indigo-300 font-medium"
-                >
-                  Review
-                </button>
-              </td>
-            </tr>
+            {approvals.map(approval => (
+              <tr key={approval.id} className="border-b border-[#222] hover:bg-white/5">
+                <td className="px-4 py-4 text-indigo-400 font-medium">{approval.id.split('-')[0]}...</td>
+                <td className="px-4 py-4 text-white">{approval.customer}</td>
+                <td className="px-4 py-4"><span className="text-red-400 font-medium">{approval.riskScore}</span></td>
+                <td className="px-4 py-4 text-textMuted">{approval.status}</td>
+                <td className="px-4 py-4 text-white">${approval.totalAmount.toFixed(2)}</td>
+                <td className="px-4 py-4 text-right">
+                  <button 
+                    onClick={() => setSelectedQuote(approval)}
+                    className="text-indigo-400 hover:text-indigo-300 font-medium"
+                  >
+                    Review
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {approvals.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-4 py-8 text-center text-zinc-500">No pending approvals!</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -67,27 +63,23 @@ function PendingApprovals() {
           <div className="bg-[#1a1a1a] border border-[#333] rounded-lg w-full max-w-3xl flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-[#333] flex justify-between items-start">
               <div>
-                <h2 className="text-xl font-bold text-white mb-1">Review {selectedQuote}</h2>
-                <p className="text-sm text-textMuted">Requested by Rahul for Acme Corp</p>
+                <h2 className="text-xl font-bold text-white mb-1">Review {selectedQuote.id.split('-')[0]}</h2>
+                <p className="text-sm text-textMuted">Requested for {selectedQuote.customer}</p>
               </div>
               <button className="text-gray-400 hover:text-white" onClick={() => setSelectedQuote(null)}>✕</button>
             </div>
             
             <div className="p-6 overflow-y-auto flex-1 space-y-6">
               <div className="card bg-[#111] border border-[#333] p-5 rounded">
-                <h3 className="text-sm font-medium text-white mb-4">Discount Analysis</h3>
+                <h3 className="text-sm font-medium text-white mb-4">Risk Analysis</h3>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-xs text-textMuted mb-1">Requested Discount</div>
-                    <div className="text-xl font-medium text-red-400">18%</div>
+                    <div className="text-xs text-textMuted mb-1">Total Amount</div>
+                    <div className="text-xl font-medium text-white">${selectedQuote.totalAmount.toFixed(2)}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-textMuted mb-1">Allowed Discount</div>
-                    <div className="text-xl font-medium text-white">10%</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-textMuted mb-1">Difference</div>
-                    <div className="text-xl font-medium text-red-400">+8%</div>
+                    <div className="text-xs text-textMuted mb-1">Blended Risk Score</div>
+                    <div className="text-xl font-medium text-red-400">{selectedQuote.riskScore}</div>
                   </div>
                 </div>
               </div>
@@ -127,13 +119,31 @@ function PendingApprovals() {
             </div>
 
             <div className="p-6 border-t border-[#333] bg-[#111] flex justify-end space-x-3">
-              <button className="btn bg-blue-500 text-white hover:bg-blue-600 px-6 py-2 rounded font-medium text-sm flex items-center">
+              <button className="btn bg-blue-500 text-white hover:bg-blue-600 px-6 py-2 rounded font-medium text-sm flex items-center" onClick={() => { alert('Returned for revision'); setSelectedQuote(null); }}>
                 <CornerDownLeft size={16} className="mr-2" /> Return for Revision
               </button>
-              <button className="btn bg-red-500 text-white hover:bg-red-600 px-6 py-2 rounded font-medium text-sm flex items-center">
+              <button className="btn bg-red-500 text-white hover:bg-red-600 px-6 py-2 rounded font-medium text-sm flex items-center" onClick={async () => { 
+                await fetch(`http://localhost:3001/api/quotations/${selectedQuote.id}/status`, {
+                  method: 'PATCH',
+                  headers: {'Content-Type': 'application/json'},
+                  body: JSON.stringify({status: 'Rejected'})
+                });
+                setApprovals(prev => prev.filter(a => a.id !== selectedQuote.id));
+                alert('Rejected!'); 
+                setSelectedQuote(null); 
+              }}>
                 <X size={16} className="mr-2" /> Reject
               </button>
-              <button className="btn bg-green-500 text-white hover:bg-green-600 px-6 py-2 rounded font-medium text-sm flex items-center">
+              <button className="btn bg-green-500 text-white hover:bg-green-600 px-6 py-2 rounded font-medium text-sm flex items-center" onClick={async () => { 
+                await fetch(`http://localhost:3001/api/quotations/${selectedQuote.id}/status`, {
+                  method: 'PATCH',
+                  headers: {'Content-Type': 'application/json'},
+                  body: JSON.stringify({status: 'Approved'})
+                });
+                setApprovals(prev => prev.filter(a => a.id !== selectedQuote.id));
+                alert('Approved successfully!'); 
+                setSelectedQuote(null); 
+              }}>
                 <Check size={16} className="mr-2" /> Approve
               </button>
             </div>
@@ -145,56 +155,76 @@ function PendingApprovals() {
 }
 
 function ApprovedList() {
+  const [approvals, setApprovals] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/approvals?status=approved')
+      .then(r => r.json())
+      .then(d => setApprovals(d.approvals || []));
+  }, []);
+
   return (
     <div className="space-y-6">
-      <div className="card bg-[#1a1a1a] rounded-lg border border-[#333] p-5">
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h3 className="text-lg font-medium text-indigo-400 mb-1">QT-1012</h3>
-            <p className="text-sm text-white">Customer: ABC Ltd</p>
+      {approvals.map(a => (
+        <div key={a.id} className="card bg-[#1a1a1a] rounded-lg border border-[#333] p-5">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h3 className="text-lg font-medium text-indigo-400 mb-1">{a.id.split('-')[0]}</h3>
+              <p className="text-sm text-white">Customer: {a.customer}</p>
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-textMuted mb-1">Approved at: {new Date(a.createdAt).toLocaleTimeString()}</div>
+              <div className="text-xs text-textMuted">Approved by: You</div>
+            </div>
           </div>
-          <div className="text-right">
-            <div className="text-xs text-textMuted mb-1">Approved at: 11:32 AM</div>
-            <div className="text-xs text-textMuted">Approved by: Palak</div>
+          <div className="flex space-x-6 text-sm">
+            <div><span className="text-textMuted">Amount:</span> <span className="text-white">${a.totalAmount.toFixed(2)}</span></div>
+            <div><span className="text-textMuted">Risk Score:</span> <span className="text-yellow-400">{a.riskScore}</span></div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-[#333]">
+            <button className="text-sm text-indigo-400 hover:text-indigo-300 font-medium">View details</button>
           </div>
         </div>
-        <div className="flex space-x-6 text-sm">
-          <div><span className="text-textMuted">Discount:</span> <span className="text-white">14%</span></div>
-          <div><span className="text-textMuted">Risk:</span> <span className="text-yellow-400">Medium</span></div>
-        </div>
-        <div className="mt-4 pt-4 border-t border-[#333]">
-          <button className="text-sm text-indigo-400 hover:text-indigo-300 font-medium">View details</button>
-        </div>
-      </div>
+      ))}
+      {approvals.length === 0 && (
+        <p className="text-center text-zinc-500 py-8">No approved quotes yet.</p>
+      )}
     </div>
   );
 }
 
 function RejectedList() {
+  const [approvals, setApprovals] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/approvals?status=rejected')
+      .then(r => r.json())
+      .then(d => setApprovals(d.approvals || []));
+  }, []);
+
   return (
     <div className="card bg-[#1a1a1a] rounded-lg border border-[#333] overflow-hidden">
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-[#333] text-sm text-textMuted bg-[#111]">
-            <th className="px-4 py-3 font-medium">Quote</th>
+            <th className="px-4 py-3 font-medium">Quote ID</th>
             <th className="px-4 py-3 font-medium">Customer</th>
-            <th className="px-4 py-3 font-medium">Discount</th>
-            <th className="px-4 py-3 font-medium">Reason</th>
+            <th className="px-4 py-3 font-medium">Risk Score</th>
+            <th className="px-4 py-3 font-medium">Amount</th>
           </tr>
         </thead>
         <tbody className="text-sm">
-          <tr className="border-b border-[#222] hover:bg-white/5">
-            <td className="px-4 py-4 text-white font-medium">QT-1009</td>
-            <td className="px-4 py-4 text-textMuted">XYZ Ltd</td>
-            <td className="px-4 py-4 text-white">25%</td>
-            <td className="px-4 py-4 text-red-400">Margin too low</td>
-          </tr>
-          <tr className="border-b border-[#222] hover:bg-white/5">
-            <td className="px-4 py-4 text-white font-medium">QT-1011</td>
-            <td className="px-4 py-4 text-textMuted">ABC Corp</td>
-            <td className="px-4 py-4 text-white">22%</td>
-            <td className="px-4 py-4 text-red-400">Discount exceeds limit</td>
-          </tr>
+          {approvals.map(a => (
+            <tr key={a.id} className="border-b border-[#222] hover:bg-white/5">
+              <td className="px-4 py-4 text-white font-medium">{a.id.split('-')[0]}</td>
+              <td className="px-4 py-4 text-textMuted">{a.customer}</td>
+              <td className="px-4 py-4 text-red-400">{a.riskScore}</td>
+              <td className="px-4 py-4 text-white">${a.totalAmount.toFixed(2)}</td>
+            </tr>
+          ))}
+          {approvals.length === 0 && (
+            <tr><td colSpan={4} className="px-4 py-8 text-center text-zinc-500">No rejected quotes yet.</td></tr>
+          )}
         </tbody>
       </table>
     </div>

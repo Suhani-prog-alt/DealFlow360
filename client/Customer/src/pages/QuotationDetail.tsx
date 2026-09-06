@@ -1,27 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useStore } from '../store';
-
 
 const QuotationDetail: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const quotation = useStore(s => s.quotations.find(q => q.id === id));
-  const messages = useStore(s => s.messages[id || ''] || []);
-  const addMessage = useStore(s => s.addMessage);
-  const updateStatus = useStore(s => s.updateQuotationStatus);
+  const [quotation, setQuotation] = useState<any>(null);
+  
+  // Use local state for messages for the demo since we didn't model them in the DB yet, 
+  // or we can use the negotiation API endpoint
+  const [messages, setMessages] = useState<any[]>([]);
   
   const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
   const [comment, setComment] = useState('');
   const [counterDiscount, setCounterDiscount] = useState('');
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    fetch(`http://localhost:3001/api/quotations/${id}`)
+      .then(r => r.json())
+      .then(d => {
+        setQuotation({
+          ...d,
+          quoteNumber: d.id.split('-')[0],
+          salesRep: 'Rahul',
+          validUntil: new Date(Date.now() + 7*24*60*60*1000).toLocaleDateString(),
+          lines: d.items.map((item: any) => ({
+            id: item.id,
+            product: item.product.name,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            discount: item.discount,
+            tax: 10
+          }))
+        });
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [id]);
+
+  if (loading) return <div>Loading...</div>;
   if (!quotation) return <div>Quotation not found.</div>;
 
   let subtotal = 0;
   let totalDiscount = 0;
   let totalTax = 0;
 
-  quotation.lines.forEach(line => {
+  quotation.lines.forEach((line: any) => {
     const lineSub = line.quantity * line.unitPrice;
     subtotal += lineSub;
     const lineDisc = lineSub * (line.discount / 100);
@@ -32,21 +56,49 @@ const QuotationDetail: React.FC = () => {
 
   const grandTotal = subtotal - totalDiscount + totalTax;
 
-  const handleNegotiate = () => {
+  const handleNegotiate = async () => {
     if (!comment) return;
-    addMessage(quotation.id, {
+    
+    // Add to local messages UI
+    setMessages(prev => [...prev, {
+      id: Date.now().toString(),
       sender: 'Customer',
       text: comment,
       counterDiscount: counterDiscount ? parseFloat(counterDiscount) : undefined,
-      lineId: selectedLineId || undefined
+      lineId: selectedLineId || undefined,
+      timestamp: Date.now()
+    }]);
+
+    // Send to negotiation API
+    await fetch('http://localhost:3001/api/negotiation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        quotationId: quotation.id,
+        requestedDiscount: counterDiscount,
+        customerNotes: comment
+      })
     });
-    updateStatus(quotation.id, 'Under Negotiation');
+
+    // Update status to Under Negotiation
+    await fetch(`http://localhost:3001/api/quotations/${quotation.id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Under Negotiation' })
+    });
+
+    setQuotation({ ...quotation, status: 'Under Negotiation' });
     setComment('');
     setCounterDiscount('');
   };
 
-  const handleConfirm = () => {
-    updateStatus(quotation.id, 'Accepted');
+  const handleConfirm = async () => {
+    await fetch(`http://localhost:3001/api/quotations/${quotation.id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Accepted' })
+    });
+    setQuotation({ ...quotation, status: 'Accepted' });
   };
 
   return (
@@ -91,7 +143,7 @@ const QuotationDetail: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {quotation.lines.map(line => {
+                {quotation.lines.map((line: any) => {
                   const lineSub = line.quantity * line.unitPrice;
                   const lineDisc = lineSub * (line.discount / 100);
                   const afterDisc = lineSub - lineDisc;
@@ -148,7 +200,7 @@ const QuotationDetail: React.FC = () => {
                     </div>
                     {msg.lineId && (
                       <div className="text-[10px] bg-[var(--color-bg-base)] px-2 py-1 rounded mb-2 text-[var(--color-text-secondary)]">
-                        Regarding: {quotation.lines.find(l => l.id === msg.lineId)?.product}
+                        Regarding: {quotation.lines.find((l: any) => l.id === msg.lineId)?.product}
                       </div>
                     )}
                     <p>{msg.text}</p>
@@ -164,7 +216,7 @@ const QuotationDetail: React.FC = () => {
               <div className="p-4 border-t border-[var(--color-border-subtle)] space-y-3">
                 {selectedLineId && (
                   <div className="text-xs bg-[var(--color-border-subtle)] p-2 rounded text-[var(--color-accent-green)]">
-                    Negotiating: {quotation.lines.find(l => l.id === selectedLineId)?.product}
+                    Negotiating: {quotation.lines.find((l: any) => l.id === selectedLineId)?.product}
                   </div>
                 )}
                 <textarea 

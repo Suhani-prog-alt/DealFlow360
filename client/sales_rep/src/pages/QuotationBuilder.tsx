@@ -173,13 +173,32 @@ const QuotationBuilder = () => {
             </div>
 
             <button 
-              onClick={() => {
+              onClick={async () => {
                 if (cart.length === 0) {
                   alert('Please add items to the cart first.');
                   return;
                 }
-                alert(needsApproval ? 'Quotation submitted for Manager Approval!' : 'Order Confirmed and sent to fulfillment!');
-                setCart([]);
+                
+                try {
+                  const response = await fetch('http://localhost:3001/api/quotations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      customerName: customer,
+                      customerTier: 'Standard',
+                      items: cart
+                    })
+                  });
+                  const result = await response.json();
+                  if (result.success) {
+                    alert(result.message);
+                    setCart([]);
+                  } else {
+                    alert('Error submitting quotation');
+                  }
+                } catch (e) {
+                  alert('Failed to connect to backend.');
+                }
               }}
               className="w-full bg-[#81c784] text-black font-bold py-3 rounded hover:bg-[#6fbf73] transition-colors"
             >

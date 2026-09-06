@@ -1,8 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Filter } from 'lucide-react';
 
 export default function QuotationsList() {
-  const [selectedQuote, setSelectedQuote] = useState<string | null>(null);
+  const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
+  const [quotations, setQuotations] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/approvals')
+      .then(r => r.json())
+      .then(d => setQuotations(d.approvals || []));
+  }, []);
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8">
@@ -42,40 +49,30 @@ export default function QuotationsList() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[#333] text-sm text-textMuted bg-[#111]">
-                <th className="px-4 py-3 font-medium">Quote</th>
+                <th className="px-4 py-3 font-medium">Quote ID</th>
                 <th className="px-4 py-3 font-medium">Customer</th>
-                <th className="px-4 py-3 font-medium">Sales Rep</th>
                 <th className="px-4 py-3 font-medium">Amount</th>
-                <th className="px-4 py-3 font-medium">Discount</th>
-                <th className="px-4 py-3 font-medium">Risk</th>
+                <th className="px-4 py-3 font-medium">Risk Score</th>
                 <th className="px-4 py-3 font-medium">Status</th>
               </tr>
             </thead>
             <tbody className="text-sm">
-              <tr 
-                className="border-b border-[#222] hover:bg-white/5 cursor-pointer"
-                onClick={() => setSelectedQuote('QT-1024')}
-              >
-                <td className="px-4 py-4 text-indigo-400 font-medium">QT-1024</td>
-                <td className="px-4 py-4 text-white">Acme</td>
-                <td className="px-4 py-4 text-textMuted">Rahul</td>
-                <td className="px-4 py-4 text-white">₹82K</td>
-                <td className="px-4 py-4 text-white">18%</td>
-                <td className="px-4 py-4"><span className="text-red-400 font-medium">High</span></td>
-                <td className="px-4 py-4"><span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs font-medium">Pending</span></td>
-              </tr>
-              <tr 
-                className="border-b border-[#222] hover:bg-white/5 cursor-pointer"
-                onClick={() => setSelectedQuote('QT-1025')}
-              >
-                <td className="px-4 py-4 text-indigo-400 font-medium">QT-1025</td>
-                <td className="px-4 py-4 text-white">Beta</td>
-                <td className="px-4 py-4 text-textMuted">Priya</td>
-                <td className="px-4 py-4 text-white">₹1.2L</td>
-                <td className="px-4 py-4 text-white">12%</td>
-                <td className="px-4 py-4"><span className="text-yellow-400 font-medium">Medium</span></td>
-                <td className="px-4 py-4"><span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-medium">Approved</span></td>
-              </tr>
+              {quotations.map(q => (
+                <tr 
+                  key={q.id}
+                  className="border-b border-[#222] hover:bg-white/5 cursor-pointer"
+                  onClick={() => setSelectedQuote(q)}
+                >
+                  <td className="px-4 py-4 text-indigo-400 font-medium">{q.id.split('-')[0]}</td>
+                  <td className="px-4 py-4 text-white">{q.customer}</td>
+                  <td className="px-4 py-4 text-white">${q.totalAmount.toFixed(2)}</td>
+                  <td className="px-4 py-4"><span className="text-red-400 font-medium">{q.riskScore}</span></td>
+                  <td className="px-4 py-4"><span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs font-medium">{q.status}</span></td>
+                </tr>
+              ))}
+              {quotations.length === 0 && (
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-zinc-500">No quotations found.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -87,8 +84,8 @@ export default function QuotationsList() {
           <div className="bg-[#1a1a1a] border border-[#333] rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-[#333] flex justify-between items-start">
               <div>
-                <h2 className="text-xl font-bold text-white mb-1">Quotation: {selectedQuote}</h2>
-                <p className="text-sm text-textMuted">Created: 05 Sep 2026 • Sales Rep: Rahul</p>
+                <h2 className="text-xl font-bold text-white mb-1">Quotation: {selectedQuote.id.split('-')[0]}</h2>
+                <p className="text-sm text-textMuted">Created: {new Date(selectedQuote.createdAt).toLocaleDateString()}</p>
               </div>
               <button 
                 className="text-gray-400 hover:text-white"
@@ -102,50 +99,21 @@ export default function QuotationsList() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="card p-4 bg-[#111] border border-[#333] rounded">
                   <div className="text-xs text-textMuted mb-2">Customer</div>
-                  <div className="font-medium text-white">Acme Corp</div>
+                  <div className="font-medium text-white">{selectedQuote.customer}</div>
                 </div>
                 <div className="card p-4 bg-[#111] border border-[#333] rounded">
                   <div className="text-xs text-textMuted mb-2">Financials</div>
                   <div className="space-y-1 text-sm">
-                    <div className="flex justify-between"><span className="text-textMuted">Subtotal:</span> <span className="text-white">₹1,00,000</span></div>
-                    <div className="flex justify-between"><span className="text-textMuted">Discount:</span> <span className="text-red-400">18%</span></div>
-                    <div className="flex justify-between"><span className="text-textMuted">Margin:</span> <span className="text-white">9%</span></div>
-                    <div className="flex justify-between font-bold pt-2 border-t border-[#333] mt-2"><span className="text-white">Final:</span> <span className="text-white">₹82,000</span></div>
+                    <div className="flex justify-between font-bold pt-2 border-t border-[#333] mt-2"><span className="text-white">Final:</span> <span className="text-white">${selectedQuote.totalAmount.toFixed(2)}</span></div>
                   </div>
                 </div>
               </div>
 
               <div className="card p-4 bg-red-500/10 border border-red-500/20 rounded">
-                <h3 className="text-sm font-bold text-red-400 mb-2">Risk Level: HIGH (78/100)</h3>
+                <h3 className="text-sm font-bold text-red-400 mb-2">Risk Level: {selectedQuote.riskScore > 50 ? 'HIGH' : 'MEDIUM'} ({selectedQuote.riskScore}/100)</h3>
                 <ul className="list-disc pl-5 text-sm text-red-300/80 space-y-1">
-                  <li>⚠ Discount exceeds category limit</li>
-                  <li>⚠ Low margin</li>
-                  <li>⚠ Large discount impact</li>
+                  <li>⚠ System flagged risk score</li>
                 </ul>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium text-white mb-3">Product Lines</h3>
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-[#333] text-xs text-textMuted">
-                      <th className="pb-2 font-medium">Product</th>
-                      <th className="pb-2 font-medium">Category</th>
-                      <th className="pb-2 font-medium">Qty</th>
-                      <th className="pb-2 font-medium">Price</th>
-                      <th className="pb-2 font-medium">Discount</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-sm">
-                    <tr className="border-b border-[#222]">
-                      <td className="py-2 text-white">Enterprise License</td>
-                      <td className="py-2 text-textMuted">Software</td>
-                      <td className="py-2 text-white">1</td>
-                      <td className="py-2 text-white">₹1,00,000</td>
-                      <td className="py-2 text-red-400">18%</td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
             </div>
             
@@ -156,14 +124,27 @@ export default function QuotationsList() {
               >
                 Close
               </button>
-              {selectedQuote === 'QT-1024' ? (
+              {selectedQuote.status === 'Pending Approval' ? (
                 <>
-                  <button className="btn bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded font-medium text-sm">Reject</button>
-                  <button className="btn bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded font-medium text-sm">Return for Revision</button>
-                  <button className="btn bg-green-500 text-white hover:bg-green-600 px-4 py-2 rounded font-medium text-sm">Approve</button>
+                  <button className="btn bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded font-medium text-sm" onClick={async () => {
+                    await fetch(`http://localhost:3001/api/quotations/${selectedQuote.id}/status`, {
+                      method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({status: 'Rejected'})
+                    });
+                    setQuotations(prev => prev.map(q => q.id === selectedQuote.id ? {...q, status: 'Rejected'} : q));
+                    alert('Rejected!');
+                    setSelectedQuote(null);
+                  }}>Reject</button>
+                  <button className="btn bg-green-500 text-white hover:bg-green-600 px-4 py-2 rounded font-medium text-sm" onClick={async () => {
+                    await fetch(`http://localhost:3001/api/quotations/${selectedQuote.id}/status`, {
+                      method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({status: 'Approved'})
+                    });
+                    setQuotations(prev => prev.map(q => q.id === selectedQuote.id ? {...q, status: 'Approved'} : q));
+                    alert('Approved!');
+                    setSelectedQuote(null);
+                  }}>Approve</button>
                 </>
               ) : (
-                <div className="text-sm text-green-400 font-medium py-2">Status: APPROVED</div>
+                <div className="text-sm text-green-400 font-medium py-2">Status: {selectedQuote.status.toUpperCase()}</div>
               )}
             </div>
           </div>

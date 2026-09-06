@@ -15,7 +15,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Integrate with the Express backend
-    fetch('http://localhost:5005/api/dashboard/stats')
+    fetch('http://localhost:3001/api/dashboard/stats')
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error("Failed to fetch stats", err));

@@ -1,22 +1,34 @@
-import React, { useState } from 'react';
-import { useStore } from '../store';
+import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { X } from 'lucide-react';
 
 const MyQuotations: React.FC = () => {
-  const quotations = useStore(s => s.quotations);
+  const [quotations, setQuotations] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
   const filterParam = searchParams.get('status');
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/quotations')
+      .then(r => r.json())
+      .then(d => setQuotations(d));
+  }, []);
   
   let filterLabel = '';
-  let filtered = quotations.filter(q => q.quoteNumber.toLowerCase().includes(search.toLowerCase()));
+  // Map Prisma object to local format for searching
+  let mappedQuotations = quotations.map(q => ({
+    ...q,
+    quoteNumber: q.id.split('-')[0],
+    date: new Date(q.createdAt).toLocaleDateString()
+  }));
+
+  let filtered = mappedQuotations.filter(q => q.quoteNumber.toLowerCase().includes(search.toLowerCase()));
 
   if (filterParam === 'active') {
     filtered = filtered.filter(q => q.status !== 'Draft' && q.status !== 'Expired');
     filterLabel = 'Active Quotations';
   } else if (filterParam === 'awaiting_response') {
-    filtered = filtered.filter(q => q.status === 'Awaiting Customer');
+    filtered = filtered.filter(q => q.status === 'Awaiting Customer' || q.status === 'Approved');
     filterLabel = 'Awaiting Response';
   } else if (filterParam === 'under_negotiation') {
     filtered = filtered.filter(q => q.status === 'Under Negotiation');
@@ -74,17 +86,11 @@ const MyQuotations: React.FC = () => {
           </thead>
           <tbody>
             {filtered.map(q => {
-              const total = q.lines.reduce((acc, line) => {
-                const sub = line.quantity * line.unitPrice;
-                const disc = sub * (line.discount / 100);
-                const afterDisc = sub - disc;
-                return acc + afterDisc + (afterDisc * (line.tax / 100));
-              }, 0);
               return (
                 <tr key={q.id} className="border-b border-[var(--color-border-subtle)] last:border-0 hover:bg-[var(--color-border-subtle)] transition-colors">
-                  <td className="p-4">{q.quoteNumber}</td>
+                  <td className="p-4 font-medium text-indigo-400">{q.quoteNumber}</td>
                   <td className="p-4">{q.date}</td>
-                  <td className="p-4">${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="p-4">${q.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                   <td className="p-4">
                     <span className="px-2.5 py-1 text-xs rounded-full bg-[var(--color-border-subtle)] text-[var(--color-text-primary)]">
                       {q.status}
@@ -96,6 +102,9 @@ const MyQuotations: React.FC = () => {
                 </tr>
               )
             })}
+            {filtered.length === 0 && (
+              <tr><td colSpan={5} className="p-8 text-center text-[var(--color-text-secondary)]">No quotations found.</td></tr>
+            )}
           </tbody>
         </table>
       </div>
