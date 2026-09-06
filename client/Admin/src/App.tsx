@@ -42,6 +42,16 @@ function Sidebar() {
           )
         })}
       </nav>
+      
+      <div className="pt-4 border-t border-[#212623] mt-auto">
+        <button 
+          onClick={() => { localStorage.removeItem('jwt_token'); window.location.href = '/'; }}
+          className="flex items-center space-x-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-md px-3 py-2 w-full transition-colors text-sm"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Logout</span>
+        </button>
+      </div>
     </div>
   );
 }
