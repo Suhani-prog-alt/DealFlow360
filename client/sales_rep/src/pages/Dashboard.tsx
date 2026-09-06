@@ -12,6 +12,8 @@ interface DashboardStats {
 const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
   useEffect(() => {
     // Integrate with the Express backend
@@ -20,6 +22,8 @@ const Dashboard = () => {
       .then(data => setStats(data))
       .catch(err => console.error("Failed to fetch stats", err));
   }, []);
+
+  const displayedActivity = stats?.recentActivity.slice(0, page * pageSize) || [];
 
   return (
     <div className="flex flex-col gap-8">
@@ -72,7 +76,7 @@ const Dashboard = () => {
       <div className="mt-8">
         <h2 className="text-xl font-bold text-white mb-6">Recent activity</h2>
         <div className="flex flex-col">
-          {stats ? stats.recentActivity.map((activity, idx) => (
+          {stats ? displayedActivity.map((activity, idx) => (
             <div key={idx} className="flex justify-between items-center py-4 border-b border-zinc-800">
               <p className="text-zinc-300">{activity.text}</p>
               <span className="text-zinc-500 text-sm">{activity.time}</span>
@@ -82,11 +86,16 @@ const Dashboard = () => {
           )}
         </div>
         
-        <div className="flex justify-center mt-6">
-          <button className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
-            <ArrowDown size={18} />
-          </button>
-        </div>
+        {stats && displayedActivity.length < stats.recentActivity.length && (
+          <div className="flex justify-center mt-6">
+            <button 
+              onClick={() => setPage(p => p + 1)}
+              className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            >
+              <ArrowDown size={18} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

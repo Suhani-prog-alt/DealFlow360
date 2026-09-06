@@ -36,15 +36,19 @@ app.post('/api/login', (req, res) => {
 // Dashboard stats
 app.get('/api/dashboard/stats', async (req, res) => {
   const pendingApprovals = await prisma.quotation.count({ where: { status: 'Pending Approval' } });
-  const openQuotations = await prisma.quotation.count({ where: { status: { in: ['Draft', 'Confirmed', 'Approved'] } } });
+  const openQuotations = await prisma.quotation.count({ where: { status: { in: ['Draft', 'Confirmed', 'Approved', 'Under Negotiation'] } } });
+
+  const actions = ['Quotation Created', 'Discount Approved', 'Order Shipped', 'Invoice Paid', 'Customer Negotiated', 'Product Added'];
+  const recentActivity = Array.from({ length: 150 }, (_, i) => ({
+    text: `${actions[Math.floor(Math.random() * actions.length)]} by ${['John Doe', 'Jane Smith', 'System', 'Finance Dept'][Math.floor(Math.random() * 4)]}`,
+    time: new Date(Date.now() - Math.random() * 1000000000).toISOString().split('T')[0]
+  }));
 
   res.json({
     pendingApprovals,
     openQuotations,
     atRiskDeals: 3,
-    recentActivity: [
-      { text: 'Dashboard loaded live data from Prisma DB', time: 'Just now' }
-    ]
+    recentActivity
   });
 });
 
@@ -211,81 +215,54 @@ app.get('/api/subscriptions/:customerId', (req, res) => {
   });
 });
 
-// --- NEW MOCK ENDPOINTS FOR HACKATHON WORKFLOW ---
+// --- MOCK GENERATORS FOR HACKATHON WORKFLOW ---
+const customersList = ['Acme Corp', 'Beta Ltd', 'Gamma Inc', 'Delta LLC', 'Epsilon Co', 'Stark Ind.', 'Wayne Ent.', 'Cyberdyne', 'Massive Dynamic', 'Initech'];
 
-// Admin Configuration
-app.get('/api/admin/config', (req, res) => {
-  res.json({
-    success: true,
-    config: {
-      maxDiscountCeiling: 20,
-      requireManagerApprovalThreshold: 10,
-      autoFulfillmentEnabled: true
-    }
-  });
+app.get('/api/orders', (req, res) => {
+  const orders = Array.from({ length: 150 }, (_, i) => ({
+    id: `ORD-${1000 + i}`,
+    customer: customersList[i % customersList.length],
+    amount: Math.floor(Math.random() * 50000) + 1000,
+    status: ['Processing', 'Shipped', 'Delivered', 'Backordered'][Math.floor(Math.random() * 4)],
+    date: new Date(Date.now() - Math.random() * 10000000000).toISOString().split('T')[0]
+  }));
+  res.json({ success: true, orders });
 });
 
-app.post('/api/admin/config', (req, res) => {
-  res.json({ success: true, message: 'Configuration updated successfully' });
+app.get('/api/invoices', (req, res) => {
+  const invoices = Array.from({ length: 150 }, (_, i) => ({
+    id: `INV-${5000 + i}`,
+    orderId: `ORD-${1000 + i}`,
+    customer: customersList[i % customersList.length],
+    amount: Math.floor(Math.random() * 50000) + 1000,
+    status: ['Draft', 'Sent', 'Paid', 'Overdue'][Math.floor(Math.random() * 4)],
+    dueDate: new Date(Date.now() + Math.random() * 5000000000).toISOString().split('T')[0]
+  }));
+  res.json({ success: true, invoices });
 });
 
-// Customer Negotiation
-app.post('/api/negotiation', (req, res) => {
-  const { quotationId, requestedDiscount, customerNotes } = req.body;
-  res.json({
-    success: true,
-    message: 'Negotiation terms submitted to Sales Rep',
-    status: 'Pending Rep Review',
-    newTerms: { requestedDiscount, customerNotes }
-  });
+app.get('/api/subscriptions', (req, res) => {
+  const subscriptions = Array.from({ length: 150 }, (_, i) => ({
+    id: `SUB-${9000 + i}`,
+    customer: customersList[i % customersList.length],
+    plan: ['Basic Monthly', 'Pro Yearly', 'Enterprise', 'Support Tier 1'][Math.floor(Math.random() * 4)],
+    status: ['Active', 'Active', 'Past Due', 'Cancelled'][Math.floor(Math.random() * 4)],
+    mrr: Math.floor(Math.random() * 5000) + 100,
+    nextBillingDate: new Date(Date.now() + Math.random() * 2000000000).toISOString().split('T')[0]
+  }));
+  res.json({ success: true, subscriptions });
 });
 
-// Customer Confirmation
-app.post('/api/quotations/:id/confirm', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Quotation confirmed by customer!',
-    status: 'Confirmed',
-    quotationId: req.params.id
-  });
-});
-
-// Order Creation
-app.post('/api/orders', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Order created successfully and sent to fulfillment',
-    orderId: 'ORD-' + Math.floor(Math.random() * 10000),
-    status: 'Processing'
-  });
-});
-
-// Payment Processing
-app.post('/api/payment', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Payment processed successfully',
-    transactionId: 'TXN-' + Math.floor(Math.random() * 1000000),
-    status: 'Paid'
-  });
-});
-
-// Deal Health + Reporting
-app.get('/api/reports/deal-health', (req, res) => {
-  res.json({
-    success: true,
-    overallHealth: 'Good',
-    metrics: {
-      dealsWon: 45,
-      dealsLost: 12,
-      averageMargin: '34%',
-      atRiskRevenue: '$45,000'
-    },
-    flaggedDeals: [
-      { id: 'Q-102', customer: 'Global Tech', reason: 'High discount anomaly' },
-      { id: 'Q-105', customer: 'Stark Ind.', reason: 'Stalled in negotiation for 14 days' }
-    ]
-  });
+app.get('/api/activities', (req, res) => {
+  const actions = ['Quotation Created', 'Discount Approved', 'Order Shipped', 'Invoice Paid', 'Customer Negotiated', 'Product Added'];
+  const activities = Array.from({ length: 150 }, (_, i) => ({
+    id: `ACT-${i}`,
+    user: ['John Doe', 'Jane Smith', 'System', 'Finance Dept'][Math.floor(Math.random() * 4)],
+    action: actions[Math.floor(Math.random() * actions.length)],
+    entity: `Entity-${Math.floor(Math.random() * 1000)}`,
+    timestamp: new Date(Date.now() - Math.random() * 1000000000).toISOString()
+  }));
+  res.json({ success: true, activities });
 });
 
 app.listen(port, () => {
