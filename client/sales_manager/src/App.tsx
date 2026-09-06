@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, CheckCircle, Activity, Scale, GitBranch, BarChart3, FileClock, ChevronDown, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, FileText, CheckCircle, Activity, Scale, GitBranch, BarChart3, FileClock, ChevronDown, ChevronRight, LogOut } from 'lucide-react';
 import Login from './pages/Login';
 import clsx from 'clsx';
 import { useState } from 'react';
@@ -20,7 +20,7 @@ import Warehouses from './pages/Warehouses';
 import SubscriptionPlans from './pages/SubscriptionPlans';
 import UpsellRules from './pages/UpsellRules';
 
-function Sidebar() {
+function Sidebar({ onLogout }: { onLogout: () => void }) {
   const location = useLocation();
   const [approvalsOpen, setApprovalsOpen] = useState(true);
   
@@ -78,6 +78,11 @@ function Sidebar() {
           <FileClock size={18} /><span>Audit Logs</span>
         </Link>
       </nav>
+      <div className="mt-auto pt-4 border-t border-[#333]">
+        <button onClick={onLogout} className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm transition-colors text-red-400 hover:bg-red-500/10 w-full text-left">
+          <LogOut size={18} /><span>Logout</span>
+        </button>
+      </div>
     </div>
   );
 }
@@ -85,6 +90,12 @@ function Sidebar() {
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
+  const handleLogout = () => {
+    localStorage.removeItem('jwt_token');
+    setIsAuthenticated(false);
+    window.location.href = '/';
+  };
+
   if (!isAuthenticated) {
     return <Login onLogin={() => setIsAuthenticated(true)} />;
   }
@@ -92,7 +103,7 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-background text-text flex">
-        <Sidebar />
+        <Sidebar onLogout={handleLogout} />
         <div className="flex-1 overflow-y-auto">
           <Routes>
             {/* Sales Manager Routes */}

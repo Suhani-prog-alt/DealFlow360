@@ -23,7 +23,7 @@ const CustomerLayout: React.FC = () => {
           <h1 className="text-xl font-bold text-[var(--color-accent-green)]">DealFlow360</h1>
           <p className="text-xs text-[var(--color-text-secondary)] mt-1">Customer Portal</p>
         </div>
-        <nav className="flex-1 px-4 space-y-2">
+        <nav className="flex-1 px-4 space-y-2 flex flex-col">
           {navItems.map(item => {
             const active = location.pathname.startsWith(item.path);
             const Icon = item.icon;
@@ -37,6 +37,12 @@ const CustomerLayout: React.FC = () => {
               </Link>
             )
           })}
+          
+          <div className="mt-auto pt-4 border-t border-[var(--color-border-subtle)]">
+            <button onClick={() => { localStorage.removeItem('jwt_token'); window.location.href = '/'; }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-red-400 hover:bg-red-500/10">
+              <span className="ml-1">Logout</span>
+            </button>
+          </div>
         </nav>
       </aside>
       <main className="flex-1 flex flex-col bg-[var(--color-bg-base)]">
