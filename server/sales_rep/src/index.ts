@@ -114,11 +114,13 @@ app.post('/api/quotations', async (req, res) => {
 app.get('/api/approvals', async (req, res) => {
   try {
     const { status } = req.query;
-    let whereClause = {};
+    let whereClause: any = {};
     if (status === 'pending') whereClause = { status: 'Pending Approval' };
     else if (status === 'approved') whereClause = { status: 'Approved' };
     else if (status === 'rejected') whereClause = { status: 'Rejected' };
-    else whereClause = { status: { in: ['Pending Approval', 'Approved', 'Rejected'] } };
+    else if (status === 'all') whereClause = {}; 
+    else if (status) whereClause = { status: status };
+    else whereClause = { status: { not: 'Draft' } };
 
     const approvals = await prisma.quotation.findMany({
       where: whereClause,
