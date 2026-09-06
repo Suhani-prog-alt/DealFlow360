@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, FileSpreadsheet, Percent, Settings, FileBarChart } from 'lucide-react';
+import { LayoutDashboard, FileText, FileSpreadsheet, Percent, LogOut, FileBarChart } from 'lucide-react';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -39,9 +39,12 @@ const Sidebar = () => {
       </nav>
       
       <div className="p-4 border-t border-[#222]">
-        <button className="flex items-center space-x-3 text-gray-500 hover:text-gray-300 px-3 py-2 w-full transition-colors text-sm">
-          <Settings size={18} />
-          <span>Settings</span>
+        <button 
+          onClick={() => { localStorage.removeItem('jwt_token'); window.location.href = '/'; }}
+          className="flex items-center space-x-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-md px-3 py-2 w-full transition-colors text-sm"
+        >
+          <LogOut size={18} />
+          <span>Logout</span>
         </button>
       </div>
     </div>
