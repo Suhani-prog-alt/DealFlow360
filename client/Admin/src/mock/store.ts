@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { initialProducts, initialCategories, initialPriceLists, initialDiscountRules, initialApprovalChains, initialWarehouses, initialSubscriptionPlans, initialUpsellRules, initialAuditLogs } from './data';
+import { initialProducts, initialCategories, initialPriceLists, initialDiscountRules, initialApprovalChains, initialWarehouses, initialSubscriptionPlans, initialUpsellRules, initialAuditLogs, initialCustomers } from './data';
 
 interface StoreState {
   products: any[];
@@ -11,6 +11,7 @@ interface StoreState {
   subscriptionPlans: any[];
   upsellRules: any[];
   auditLogs: any[];
+  customers: any[];
   
   addRecord: (model: string, data: any) => void;
   deleteRecord: (model: string, id: string) => void;
@@ -27,6 +28,7 @@ export const useStore = create<StoreState>((set) => ({
   subscriptionPlans: initialSubscriptionPlans,
   upsellRules: initialUpsellRules,
   auditLogs: initialAuditLogs,
+  customers: initialCustomers,
 
   addRecord: (model, data) => set((state) => {
     const newRecord = { ...data, id: Math.random().toString(36).substr(2, 9), createdAt: new Date().toISOString() };

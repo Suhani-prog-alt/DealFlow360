@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, Tag, Scale, Building2, Repeat, Activity, Settings, FileText, List, Link as LinkIcon, Lock } from 'lucide-react';
+import { LayoutDashboard, Package, Tag, Scale, Building2, Repeat, Activity, FileText, Link as LinkIcon, Lock, Users } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 
 function Sidebar() {
@@ -7,6 +7,7 @@ function Sidebar() {
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Products', path: '/products', icon: Package },
+    { name: 'Customers', path: '/customers', icon: Users },
     { name: 'Price Lists', path: '/pricing', icon: Tag },
     { name: 'Discount Tiers', path: '/governance', icon: Scale },
     { name: 'Approval Chains', path: '/approvals', icon: Lock },
@@ -70,6 +71,7 @@ function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import Products from './pages/Products';
+import Customers from './pages/Customers';
 import Pricing from './pages/Pricing';
 import DiscountTiers from './pages/DiscountTiers';
 import ApprovalChains from './pages/ApprovalChains';
@@ -93,6 +95,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/customers" element={<Customers />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/governance" element={<DiscountTiers />} />
         <Route path="/approvals" element={<ApprovalChains />} />
